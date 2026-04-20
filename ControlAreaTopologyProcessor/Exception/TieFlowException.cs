@@ -1,4 +1,4 @@
-﻿namespace ControlAreaTopology.Exception
+﻿namespace ControlAreaTopologyProcessor.Exception
 {
     public class TieFlowException : ApplicationException
     {
