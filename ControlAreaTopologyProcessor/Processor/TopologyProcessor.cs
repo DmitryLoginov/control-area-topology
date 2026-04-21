@@ -17,6 +17,7 @@ namespace ControlAreaTopology.Processor
 
             while (remainingTieFlows.Count > 0)
             {
+                // TODO: map can be optimized
                 Dictionary<ConductingEquipment, Terminal> initTerminalsMap = [];
                 Stack<ConductingEquipment> equipmentsStack = new();
 
@@ -153,8 +154,12 @@ namespace ControlAreaTopology.Processor
                                     {
                                         ConductingEquipment equipment = yetAnotherTerminal.ConductingEquipment;
 
-                                        initTerminalsMap.Add(equipment, yetAnotherTerminal);
-                                        equipmentsStack.Push(equipment);
+                                        if (!initTerminalsMap.TryGetValue(equipment, out _))
+                                        {
+                                            // TODO: different terminals
+                                            initTerminalsMap.Add(equipment, yetAnotherTerminal);
+                                            equipmentsStack.Push(equipment);
+                                        }
                                     }
                                 }
                             }

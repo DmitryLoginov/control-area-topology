@@ -6,8 +6,8 @@ namespace ControlAreaTopology.Processor.Tests
     [TestClass()]
     public class TopologyProcessorTests
     {
-        [TestMethod(displayName: "Одна единица проводящего оборудования с двумя полюсами, оба полюса имеют корректные границы.")]
-        public void OneConductingEquipmentClosed()
+        [TestMethod()]
+        public void OneEquipmentClosed()
         {
             ConductingEquipment conductingEquipment = new ConductingEquipment();
 
@@ -20,22 +20,23 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-        [TestMethod(displayName: "Две последовательно соединенные единицы оборудования (с двумя полюсами), " +
-            "две корректные границы с концов оборудований.")]
+        [TestMethod()]
         public void TwoSerialConnectedEquipmentsClosed()
         {
             ConductingEquipment first = new ConductingEquipment();
             ConductingEquipment second = new ConductingEquipment();
+
             ConnectivityNode connectivityNode = new ConnectivityNode(new List<Terminal>()
-    {
-        first.Terminals.First(item => item.sequenceNumber == 1), second.Terminals.First(item => item.sequenceNumber == 1)
-    });
+            {
+                first.Terminals.First(item => item.sequenceNumber == 1),
+                second.Terminals.First(item => item.sequenceNumber == 1)
+            });
 
             ControlArea controlArea = new ControlArea();
 
@@ -46,14 +47,13 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-        [TestMethod(displayName: "Три единицы оборудования (с двумя полюсами), соединенные по схеме звезда. " +
-            "Три корректные границы с концов оборудований.")]
+        [TestMethod()]
         public void ThreeStarConnectedEquipmentsClosed()
         {
             ConductingEquipment first = new ConductingEquipment();
@@ -61,11 +61,11 @@ namespace ControlAreaTopology.Processor.Tests
             ConductingEquipment third = new ConductingEquipment();
 
             ConnectivityNode connectivityNode = new ConnectivityNode(new List<Terminal>()
-    {
-        first.Terminals.First(item => item.sequenceNumber == 1),
-        second.Terminals.First(item => item.sequenceNumber == 1),
-        third.Terminals.First(item => item.sequenceNumber == 1)
-    });
+            {
+                first.Terminals.First(item => item.sequenceNumber == 1),
+                second.Terminals.First(item => item.sequenceNumber == 1),
+                third.Terminals.First(item => item.sequenceNumber == 1)
+            });
 
             ControlArea controlArea = new ControlArea();
 
@@ -77,13 +77,13 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-        [TestMethod(displayName: "Одна единица проводящего оборудования с тремя полюсами, все три полюса имеют корректные границы.")]
+        [TestMethod()]
         public void OneThreeTerminalEquipmentClosed()
         {
             ConductingEquipment conductingEquipment = new ConductingEquipment(3);
@@ -98,24 +98,23 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-        [TestMethod(displayName: "Единица проводящего оборудования с тремя полюсами, к одному из которых присоединена " +
-            "другая единица оборудования с двумя полюсами. Три корректные границы.")]
-        public void OneThreeTerminalEquipmentSerialConnectedToOtherEquipmentClosed()
+        [TestMethod()]
+        public void ThreeTerminalEquipmentConnectedToOtherEquipmentClosed()
         {
             ConductingEquipment threeTerminalEquipment = new ConductingEquipment(3);
             ConductingEquipment twoTerminalEquipment = new ConductingEquipment();
 
             ConnectivityNode connectivityNode = new ConnectivityNode(new List<Terminal>()
-    {
-        threeTerminalEquipment.Terminals.First(item => item.sequenceNumber == 2),
-        twoTerminalEquipment.Terminals.First(item => item.sequenceNumber == 2)
-    });
+            {
+                threeTerminalEquipment.Terminals.First(item => item.sequenceNumber == 2),
+                twoTerminalEquipment.Terminals.First(item => item.sequenceNumber == 2)
+            });
 
             ControlArea controlArea = new ControlArea();
 
@@ -127,14 +126,13 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-        [TestMethod(displayName: "Три единицы оборудования (с двумя полюсами), соединенные по схеме звезда. " +
-            "Две корректные границы, одна из единиц оборудования не имеет границы.")]
+        [TestMethod()]
         public void ThreeStarConnectedEquipmentsWithTwoBordersClosed()
         {
             ConductingEquipment first = new ConductingEquipment();
@@ -142,11 +140,11 @@ namespace ControlAreaTopology.Processor.Tests
             ConductingEquipment third = new ConductingEquipment();
 
             ConnectivityNode connectivityNode = new ConnectivityNode(new List<Terminal>()
-    {
-        first.Terminals.First(item => item.sequenceNumber == 1),
-        second.Terminals.First(item => item.sequenceNumber == 1),
-        third.Terminals.First(item => item.sequenceNumber == 1)
-    });
+            {
+                first.Terminals.First(item => item.sequenceNumber == 1),
+                second.Terminals.First(item => item.sequenceNumber == 1),
+                third.Terminals.First(item => item.sequenceNumber == 1)
+            });
 
             ControlArea controlArea = new ControlArea();
 
@@ -157,16 +155,14 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
 
-
-
         [TestMethod()]
-        public void IncorrectPositiveFlowInOneEquipment()
+        public void IncorrectPositiveFlowIn()
         {
             ConductingEquipment conductingEquipment = new ConductingEquipment();
 
@@ -187,23 +183,23 @@ namespace ControlAreaTopology.Processor.Tests
             ConductingEquipment equipment_outer = new ConductingEquipment();
 
             ConnectivityNode cn_inner = new ConnectivityNode(new List<Terminal>()
-    {
-        equipment_firstInner.Terminals.First(item => item.sequenceNumber == 1),
-        equipment_secondInner.Terminals.First(item => item.sequenceNumber == 1),
-        equipment_inter.Terminals.First(item => item.sequenceNumber == 1)
-    });
+            {
+                equipment_firstInner.Terminals.First(item => item.sequenceNumber == 1),
+                equipment_secondInner.Terminals.First(item => item.sequenceNumber == 1),
+                equipment_inter.Terminals.First(item => item.sequenceNumber == 1)
+            });
 
             ConnectivityNode cn_outer = new ConnectivityNode(new List<Terminal>()
-    {
-        equipment_inter.Terminals.First(item => item.sequenceNumber == 2),
-        equipment_outer.Terminals.First(item => item.sequenceNumber == 2)
-    });
+            {
+                equipment_inter.Terminals.First(item => item.sequenceNumber == 2),
+                equipment_outer.Terminals.First(item => item.sequenceNumber == 2)
+            });
 
             ConnectivityNode cn_inter = new ConnectivityNode(new List<Terminal>()
-    {
-        equipment_outer.Terminals.First(item => item.sequenceNumber == 1),
-        equipment_firstInner.Terminals.First(item => item.sequenceNumber == 2)
-    });
+            {
+                equipment_outer.Terminals.First(item => item.sequenceNumber == 1),
+                equipment_firstInner.Terminals.First(item => item.sequenceNumber == 2)
+            });
 
             ControlArea controlArea = new ControlArea();
 
@@ -214,15 +210,11 @@ namespace ControlAreaTopology.Processor.Tests
             {
                 TopologyProcessor.AreBordersClosedV1(controlArea);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
             }
         }
-
-        // ---------------------------------------
-        // -----  -----
-        // ---------------------------------------
 
         [TestMethod()]
         public void UnclosedBorderWithOtherControlArea()
@@ -280,6 +272,70 @@ namespace ControlAreaTopology.Processor.Tests
             }
 
             Assert.ThrowsException<TieFlowException>(() => TopologyProcessor.AreBordersClosedV1(controlArea_2));
+        }
+
+        [TestMethod()]
+        public void EquipmentLoopAndBusbarSection()
+        {
+            ConductingEquipment line1 = new ConductingEquipment();
+            line1.name = "line 1 not included";
+            ConductingEquipment line2 = new ConductingEquipment();
+            line2.name = "line 2 not included";
+            ConductingEquipment line3 = new ConductingEquipment();
+            line3.name = "line 3 included";
+            ConductingEquipment line4 = new ConductingEquipment();
+            line4.name = "line 4 included";
+            ConductingEquipment busbar = new ConductingEquipment(1);
+            busbar.name = "busbar";
+            ConductingEquipment inner1 = new ConductingEquipment();
+            inner1.name = "inner 1";
+            ConductingEquipment inner2 = new ConductingEquipment();
+            inner2.name = "inner 2 (intermediate)";
+            ConductingEquipment inner3 = new ConductingEquipment();
+            inner3.name = "inner 3";
+
+            ConnectivityNode node1 = new ConnectivityNode(new List<Terminal>()
+            {
+                line1.Terminals.First(item => item.sequenceNumber == 2),
+                line2.Terminals.First(item => item.sequenceNumber == 2),
+                line3.Terminals.First(item => item.sequenceNumber == 2),
+                line4.Terminals.First(item => item.sequenceNumber == 2),
+                busbar.Terminals.First(),
+                inner1.Terminals.First(item => item.sequenceNumber == 2),
+                inner3.Terminals.First(item => item.sequenceNumber == 2),
+            });
+
+            ConnectivityNode node2 = new ConnectivityNode(new List<Terminal>()
+            {
+                inner1.Terminals.First(item => item.sequenceNumber == 1),
+                inner2.Terminals.First(item => item.sequenceNumber == 1),
+            });
+
+            ConnectivityNode node3 = new ConnectivityNode(new List<Terminal>()
+            {
+                inner3.Terminals.First(item => item.sequenceNumber == 1),
+                inner2.Terminals.First(item => item.sequenceNumber == 2),
+            });
+
+            ControlArea controlArea = new ControlArea();
+
+            TieFlow tieFlowNear1 = new TieFlow(line1.Terminals.First(item => item.sequenceNumber == 2), controlArea, false);
+            tieFlowNear1.name = "line 1 tie flow near";
+            TieFlow tieFlowNear2 = new TieFlow(line2.Terminals.First(item => item.sequenceNumber == 2), controlArea, false);
+            tieFlowNear2.name = "line 2 tie flow near";
+            TieFlow tieFlowFar1 = new TieFlow(line3.Terminals.First(item => item.sequenceNumber == 1), controlArea, true);
+            tieFlowFar1.name = "line 3 tie flow far";
+            TieFlow tieFlowFar2 = new TieFlow(line4.Terminals.First(item => item.sequenceNumber == 1), controlArea, true);
+            tieFlowFar2.name = "line 4 tie flow far";
+
+            try
+            {
+                TopologyProcessor.AreBordersClosedV1(controlArea);
+            }
+            catch (Exception exception)
+            {
+                Assert.Fail($"ControlArea boundaries check failed: {exception.Message}");
+            }
         }
     }
 }
