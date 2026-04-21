@@ -1,5 +1,6 @@
 ﻿using ControlAreaTopologyProcessor.Exception;
 using ControlAreaTopologyProcessor.Model;
+using ControlAreaTopologyProcessor.Processor;
 
 namespace ControlAreaTopology.Processor.Tests
 {
