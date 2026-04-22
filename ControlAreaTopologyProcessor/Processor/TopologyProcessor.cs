@@ -30,19 +30,17 @@ namespace ControlAreaTopologyProcessor.Processor
             Dictionary<ConductingEquipment, Terminal> initTerminalsMap = [];
             Stack<ConductingEquipment> equipmentsStack = new();
 
+            Terminal initTerminal = startTieFlow.Terminal;
+
             if (startTieFlow.positiveFlowIn)
             {
-                Terminal initTerminal = startTieFlow.Terminal;
                 ConductingEquipment initEquipment = initTerminal.ConductingEquipment;
 
                 initTerminalsMap.Add(initEquipment, initTerminal);
                 equipmentsStack.Push(initEquipment);
-
-                remainingTieFlows.Remove(startTieFlow);
             }
             else
             {
-                Terminal initTerminal = startTieFlow.Terminal;
                 ConnectivityNode initConnectivityNode = startTieFlow.Terminal.ConnectivityNode;
                 IEnumerable<Terminal> nextTerminals = GetOtherTerminals(initConnectivityNode, initTerminal);
 
@@ -53,11 +51,11 @@ namespace ControlAreaTopologyProcessor.Processor
                     initTerminalsMap.Add(equipment, terminal);
                     equipmentsStack.Push(equipment);
                 }
-
-                remainingTieFlows.Remove(startTieFlow);
             }
 
-            // DFS обход
+            remainingTieFlows.Remove(startTieFlow);
+
+            // DFS-обход
             while (equipmentsStack.Count != 0)
             {
                 ConductingEquipment nextEquipment = equipmentsStack.Pop();
@@ -74,12 +72,56 @@ namespace ControlAreaTopologyProcessor.Processor
             }
         }
 
-        private static void ProcessNextTerminal(ControlArea controlArea, Terminal terminal, HashSet<TieFlow> remainingTieFlows,
+        private static void ProcessNextTerminal(ControlArea controlArea, Terminal terminal,
+            HashSet<TieFlow> remainingTieFlows,
             Stack<ConductingEquipment> equipmentsStack,
             Dictionary<ConductingEquipment, Terminal> initTerminalsMap)
         {
-            TieFlow[] tieFlows = terminal.TieFlows;
-            var targetTieFlows = terminal.TieFlows.Where(item => item.ControlArea.Equals(controlArea));
+            if (terminal.TieFlows.Length != 0)
+            {
+                ProcessTerminal(controlArea, terminal, remainingTieFlows, true);
+            }
+            else
+            {
+                ProcessConnectivityNode(controlArea, terminal, remainingTieFlows, equipmentsStack, initTerminalsMap);
+            }
+        }
+
+        private static void ProcessConnectivityNode(ControlArea controlArea, Terminal terminal,
+            HashSet<TieFlow> remainingTieFlows,
+            Stack<ConductingEquipment> equipmentsStack,
+            Dictionary<ConductingEquipment, Terminal> initTerminalsMap)
+        {
+            if (terminal.ConnectivityNode == null)
+            {
+                return;
+            }
+
+            foreach (Terminal otherTerminal in GetOtherTerminals(terminal.ConnectivityNode, terminal))
+            {
+                if (otherTerminal.TieFlows.Length != 0)
+                {
+                    ProcessTerminal(controlArea, otherTerminal, remainingTieFlows, false);
+                }
+                else
+                {
+                    ConductingEquipment equipment = otherTerminal.ConductingEquipment;
+
+                    if (!initTerminalsMap.TryGetValue(equipment, out _))
+                    {
+                        // TODO: different terminals
+                        initTerminalsMap.Add(equipment, otherTerminal);
+                        equipmentsStack.Push(equipment);
+                    }
+                }
+            }
+        }
+
+        private static void ProcessTerminal(ControlArea controlArea, Terminal terminal,
+            HashSet<TieFlow> remainingTieFlows,
+            bool cameFromEquipment)
+        {
+            IEnumerable<TieFlow> targetTieFlows = terminal.TieFlows.Where(item => item.ControlArea.Equals(controlArea));
 
             if (targetTieFlows.Count() > 1)
             {
@@ -92,9 +134,11 @@ namespace ControlAreaTopologyProcessor.Processor
 
                 if (remainingTieFlows.Contains(targetTieFlow))
                 {
-                    if (!targetTieFlow.positiveFlowIn)
+                    bool expectedFlowIn = cameFromEquipment;
+                    
+                    if (targetTieFlow.positiveFlowIn != expectedFlowIn)
                     {
-                        throw new TieFlowException("Incorrect border: Terminal should has positiveFlowIn equals to true");
+                        throw new TieFlowException($"Incorrect border: Terminal should has positiveFlowIn equals to {expectedFlowIn}");
                     }
                     else
                     {
@@ -105,67 +149,11 @@ namespace ControlAreaTopologyProcessor.Processor
                 return;
             }
 
-            var otherTieFlows = terminal.TieFlows.Where(item => !item.ControlArea.Equals(controlArea));
+            IEnumerable<TieFlow> otherTieFlows = terminal.TieFlows.Where(item => !item.ControlArea.Equals(controlArea));
 
             if (otherTieFlows.Any())
             {
                 throw new TieFlowException("Potential unclosed border: the route trace met border of alien ControlArea");
-            }
-
-            ConnectivityNode connectivityNode = terminal.ConnectivityNode;
-
-            if (connectivityNode != null)
-            {
-                IEnumerable<Terminal> yetAnotherNextTerminals = GetOtherTerminals(connectivityNode, terminal);
-
-                foreach (Terminal yetAnotherTerminal in yetAnotherNextTerminals)
-                {
-                    if (yetAnotherTerminal.TieFlows.Length != 0)
-                    {
-                        var targetTieFlows2 = yetAnotherTerminal.TieFlows.Where(item => item.ControlArea.Equals(controlArea));
-
-                        if (targetTieFlows2.Count() > 1)
-                        {
-                            throw new TieFlowException("Terminal has more than one TieFlow with the same ControlArea");
-                        }
-                        else if (targetTieFlows2.Count() == 1)
-                        {
-                            TieFlow targetTieFlow = targetTieFlows2.First();
-
-                            if (remainingTieFlows.Contains(targetTieFlow))
-                            {
-                                if (targetTieFlow.positiveFlowIn)
-                                {
-                                    throw new TieFlowException("Incorrect border: Terminal should has positiveFlowIn equals to false");
-                                }
-                                else
-                                {
-                                    remainingTieFlows.Remove(targetTieFlow);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var otherTieFlows2 = yetAnotherTerminal.TieFlows.Where(item => !item.ControlArea.Equals(controlArea));
-
-                            if (otherTieFlows2.Any())
-                            {
-                                throw new TieFlowException("Potential unclosed border: the route trace met border of alien ControlArea");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ConductingEquipment equipment = yetAnotherTerminal.ConductingEquipment;
-
-                        if (!initTerminalsMap.TryGetValue(equipment, out _))
-                        {
-                            // TODO: different terminals
-                            initTerminalsMap.Add(equipment, yetAnotherTerminal);
-                            equipmentsStack.Push(equipment);
-                        }
-                    }
-                }
             }
         }
 
